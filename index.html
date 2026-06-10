@@ -17,12 +17,17 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
     font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
-  body{padding-bottom:calc(64px + var(--safe-b))}
+  body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
   header{position:sticky;top:0;z-index:5;background:#8a1c1c;color:#fff;
     padding:calc(12px + var(--safe-t)) 16px 12px;text-align:center}
   header h1{margin:0;font-size:18px;font-weight:700;letter-spacing:1px}
   header .sub{font-size:12px;opacity:.8;margin-top:2px}
-  .wrap{max-width:560px;margin:0 auto;padding:14px}
+  .wrap{width:100%;max-width:560px;margin:0 auto;padding:14px;
+    flex:1 1 auto;display:flex;flex-direction:column;
+    padding-bottom:calc(78px + var(--safe-b))}
+  /* center calendar so short content doesn't leave a void above the tab bar */
+  body.cal .wrap{justify-content:center}
+  body.cal #calView{margin-top:-6vh}
 
   /* today */
   .badge{display:inline-block;color:#fff;font-weight:700;font-size:13px;
@@ -172,6 +177,7 @@ function renderToday(){
     return;
   }
 
+  const done = doneSet(ymd(d));
   let groupsHtml = '', lastG = null;
   w.items.forEach((it,idx)=>{
     if(it.g!==lastG){
@@ -181,7 +187,7 @@ function renderToday(){
         +'<span class="rest">· '+G.rest+'</span></div>';
       lastG = it.g;
     }
-    groupsHtml += '<div class="ex" data-idx="'+idx+'" onclick="toggleEx('+idx+',this)">'
+    groupsHtml += '<div class="ex'+(done.has(idx)?' on':'')+'" data-idx="'+idx+'" onclick="toggleEx('+idx+',this)">'
       +'<span class="chk">✓</span><span class="name">'+it.n+'</span>'
       +'<span class="tag">'+GROUPS[it.g].label+'</span></div>';
   });
@@ -297,6 +303,7 @@ function jumpTo(y,m,day){
 /* ---------- tabs ---------- */
 function switchTab(t){
   const today = t==='today';
+  document.body.classList.toggle('cal',!today);
   document.getElementById('todayView').classList.toggle('hide',!today);
   document.getElementById('calView').classList.toggle('hide',today);
   document.getElementById('tabToday').classList.toggle('on',today);
